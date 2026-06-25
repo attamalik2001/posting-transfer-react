@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { ConnectionContext } from './connection'
 import type { ConnectionState } from './connection'
-import { supabaseUrl, serviceRoleKey, supabaseAnonKey, isSupabaseConfigured } from '../lib/supabase'
+import { supabaseUrl, supabaseAnonKey, isSupabaseConfigured } from '../lib/supabase'
 
 type Status = ConnectionState['supabase']
 
@@ -10,19 +10,16 @@ async function checkSupabaseHealth(): Promise<Status> {
     return 'unconfigured'
   }
 
-  const [anonOk, serviceOk] = await Promise.all([
-    fetch(`${supabaseUrl}/auth/v1/health`, {
-      headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
-    }).then((r) => r.ok),
-    fetch(`${supabaseUrl}/rest/v1/`, {
-      headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}`, Accept: 'application/json' },
-    }).then((r) => r.ok),
-  ])
+  // Check the public auth health endpoint with the anon key.
+  const anonOk = await fetch(`${supabaseUrl}/auth/v1/health`, {
+    headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
+  })
+    .then((r) => r.ok)
+    .catch(() => false)
 
-  if (anonOk || serviceOk) {
-    return 'online'
-  }
+  if (anonOk) return 'online'
 
+  // If auth health didn't respond OK, consider Supabase offline.
   try {
     await fetch(`${supabaseUrl}/auth/v1/health`, {
       headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
