@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Transfer-Posting App",
+    "slug": "transfer-posting-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#09090b"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lgcd.jhang.transferposting"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./icon.png",
+        "backgroundColor": "#09090b"
+      },
+      "package": "com.lgcd.jhang.transferposting"
+    },
+    "web": {
+      "favicon": "./public/favicon.svg",
+      "description": "LG&CD Department, Jhang - Employee Transfer & Posting Management"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b0161e83-d6fa-4568-9b89-5952823d0650"
+      }
+    },
+    "owner": "attamalik2001"
+  }
+}
