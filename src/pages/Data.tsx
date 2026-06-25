@@ -320,10 +320,17 @@ export default function Data({ onViewProfile }: Props) {
 
   if (error) {
     return (
-      <div className="glass data-container">
+      <div className="glass data-container" style={{ minHeight: '100vh' }}>
         <div className="error-state">
           <p className="error-title">Unable to load data</p>
           <p className="error-message">{error}</p>
+          <button
+            className="btn btn-edit"
+            onClick={() => setPage('settings')}
+            style={{ marginTop: 12 }}
+          >
+            Go to Settings
+          </button>
         </div>
       </div>
     )
