@@ -29,7 +29,7 @@ function App() {
   return (
     <div className="app">
       <main className={`content${page === 'profile' || page === 'ucwise' ? ' content-full' : ''}`}>
-        {page === 'dashboard' && <Dashboard onNavigateToEmployee={() => setPage('employee')} onNavigateToRetiring={() => { setRetiringFilter('year'); setPage('employee') }} />}
+        {page === 'dashboard' && <Dashboard onNavigateToEmployee={() => { setRetiringFilter(null); setPage('employee') }} onNavigateToRetiring={() => { setRetiringFilter('year'); setPage('employee') }} />}
         {page === 'employee' && <Data onViewProfile={handleViewProfile} retiringFilter={retiringFilter} />}
         {page === 'ucwise' && <UcWise />}
         {page === 'profile' && (
@@ -50,17 +50,17 @@ function App() {
       )}
 
       <nav className="nav">
-        {([
-          ['dashboard', 'Home'],
-          ['employee', 'Employee'],
-          ['ucwise', 'UC-wise'],
-          ['settings', 'Settings'],
-        ] as const).map(([id, label]) => (
-          <button
-            key={id}
-            className={`nav-item ${page === id ? 'active' : ''}`}
-            onClick={() => setPage(id)}
-          >
+{([
+           ['dashboard', 'Home'],
+           ['employee', 'Employee'],
+           ['ucwise', 'UC-wise'],
+           ['settings', 'Settings'],
+         ] as const).map(([id, label]) => (
+           <button
+             key={id}
+             className={`nav-item ${page === id ? 'active' : ''}`}
+             onClick={() => { if (id === 'employee') setRetiringFilter(null); setPage(id) }}
+           >
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               {id === 'dashboard' && <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></>}
               {id === 'employee' && <><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></>}
