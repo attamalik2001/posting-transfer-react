@@ -37,9 +37,10 @@ interface UC {
 
 interface Props {
   onViewProfile: (id: number) => void
+  retiringFilter?: 'year' | null
 }
 
-export default function Data({ onViewProfile }: Props) {
+export default function Data({ onViewProfile, retiringFilter }: Props) {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [ucList, setUcList] = useState<UC[]>([])
   const [loading, setLoading] = useState(true)
@@ -111,6 +112,8 @@ export default function Data({ onViewProfile }: Props) {
     fetchData()
   }, [])
 
+  const CURRENT_YEAR = new Date().getFullYear()
+
   const tehsils = Array.from(new Set(ucList.map((uc) => uc.tehsil))).sort()
 
   const employeesSortedByUc = [...employees].sort((a, b) =>
@@ -124,6 +127,10 @@ export default function Data({ onViewProfile }: Props) {
 
   const filteredEmployees = employeesSortedByUc.filter((emp) => {
     const term = searchTerm.toLowerCase()
+    if (retiringFilter === 'year' && emp.date_of_superannuation) {
+      const year = new Date(emp.date_of_superannuation).getFullYear()
+      if (year !== CURRENT_YEAR) return false
+    }
     if (!term) return true
     return (
       emp.employee_name?.toLowerCase().includes(term) ||
@@ -348,7 +355,7 @@ export default function Data({ onViewProfile }: Props) {
           </svg>
         </div>
         <div className="header-text">
-          <h2 className="header-title">Employees</h2>
+          <h2 className="header-title">{retiringFilter === 'year' ? 'Retiring This Year' : 'Employees'}</h2>
           <p className="header-subtitle">{filteredEmployees.length} records found</p>
         </div>
       </div>

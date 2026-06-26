@@ -12,6 +12,7 @@ type Page = 'dashboard' | 'employee' | 'ucwise' | 'profile' | 'settings'
 function App() {
   const [page, setPage] = useState<Page>('dashboard')
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null)
+  const [retiringFilter, setRetiringFilter] = useState<'year' | null>(null)
   const { isInstallable, promptInstall } = usePWAInstall()
 
   const handleViewProfile = (id: number) => {
@@ -21,14 +22,15 @@ function App() {
 
   const handleBackFromProfile = () => {
     setSelectedEmployeeId(null)
+    setRetiringFilter(null)
     setPage('employee')
   }
 
   return (
     <div className="app">
       <main className={`content${page === 'profile' || page === 'ucwise' ? ' content-full' : ''}`}>
-        {page === 'dashboard' && <Dashboard />}
-        {page === 'employee' && <Data onViewProfile={handleViewProfile} />}
+        {page === 'dashboard' && <Dashboard onNavigateToEmployee={() => setPage('employee')} onNavigateToRetiring={() => { setRetiringFilter('year'); setPage('employee') }} />}
+        {page === 'employee' && <Data onViewProfile={handleViewProfile} retiringFilter={retiringFilter} />}
         {page === 'ucwise' && <UcWise />}
         {page === 'profile' && (
           <Profile employeeId={selectedEmployeeId} onBack={handleBackFromProfile} />
