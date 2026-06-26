@@ -10,22 +10,13 @@ async function checkSupabaseHealth(): Promise<Status> {
     return 'unconfigured'
   }
 
-  // Check the public auth health endpoint with the anon key.
-  const anonOk = await fetch(`${supabaseUrl}/auth/v1/health`, {
-    headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
-  })
-    .then((r) => r.ok)
-    .catch(() => false)
-
-  if (anonOk) return 'online'
-
-  // If auth health didn't respond OK, consider Supabase offline.
   try {
-    await fetch(`${supabaseUrl}/auth/v1/health`, {
+    const res = await fetch(`${supabaseUrl}/auth/v1/health`, {
       headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
     })
+    if (res.ok) return 'online'
   } catch {
-    return 'offline'
+    // Network error or blocked request
   }
 
   return 'offline'
