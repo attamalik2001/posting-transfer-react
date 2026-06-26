@@ -378,61 +378,61 @@
   }
 
   .uc-name {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .uc-tehsil {
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: 0.05em;
   }
 
   .uc-count-badge {
-    font-size: 13px;
-    padding: 5px 12px;
+    font-size: 12px;
+    padding: 4px 10px;
   }
 
   .uc-employees {
-    gap: 8px;
+    gap: 6px;
   }
 
   .uc-employee-row {
-    padding: 12px 14px;
-    gap: 4px;
+    padding: 10px 12px;
+    gap: 6px;
   }
 
   .uc-emp-name {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .uc-emp-meta {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .btn-edit {
-    padding: 9px 16px;
-    font-size: 13px;
+    padding: 8px 14px;
+    font-size: 12px;
     border-radius: 10px;
   }
 
   .icon-edit {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: 10px;
   }
 
   .edit-label {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .edit-select {
-    padding: 10px 14px;
-    font-size: 14px;
+    padding: 9px 12px;
+    font-size: 13px;
     border-radius: 10px;
   }
 
   .btn {
-    padding: 10px 16px;
-    font-size: 14px;
+    padding: 9px 14px;
+    font-size: 13px;
     border-radius: 10px;
   }
 }
@@ -449,11 +449,11 @@
   }
 
   .uc-name {
-    font-size: 20px;
+    font-size: 17px;
   }
 
   .uc-tehsil {
-    font-size: 13px;
+    font-size: 12px;
   }
 }
 
