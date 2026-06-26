@@ -41,6 +41,11 @@ export default function Profile({ employeeId, onBack }: Props) {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState<Partial<Employee>>({})
+  const [designationOptions, setDesignationOptions] = useState<string[]>([])
+  const [departmentOptions, setDepartmentOptions] = useState<string[]>([])
+  const [cadreOptions, setCadreOptions] = useState<string[]>([])
+  const [tehsilOptions, setTehsilOptions] = useState<string[]>([])
+  const [ucOptions, setUcOptions] = useState<string[]>([])
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -137,6 +142,44 @@ export default function Profile({ employeeId, onBack }: Props) {
   const updateField = <K extends keyof Employee>(key: K, value: Employee[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
+
+  useEffect(() => {
+    if (!editing || !isSupabaseConfigured) return
+
+    const loadOptions = async () => {
+      const [empRes, ucRes] = await Promise.all([
+        fetch(`${supabaseUrl}/rest/v1/employee?select=designation,parent_department,cadre`, {
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${supabaseAnonKey}`,
+            Accept: 'application/json',
+          },
+        }),
+        fetch(`${supabaseUrl}/rest/v1/uc?select=tehsil,uc_name`, {
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${supabaseAnonKey}`,
+            Accept: 'application/json',
+          },
+        }),
+      ])
+
+      if (empRes.ok) {
+        const employees = (await empRes.json()) as Pick<Employee, 'designation' | 'parent_department' | 'cadre'>[]
+        setDesignationOptions(Array.from(new Set(employees.map(e => e.designation).filter(Boolean))).sort())
+        setDepartmentOptions(Array.from(new Set(employees.map(e => e.parent_department).filter(Boolean))).sort())
+        setCadreOptions(Array.from(new Set(employees.map(e => e.cadre).filter(Boolean))).sort())
+      }
+
+      if (ucRes.ok) {
+        const ucs = (await ucRes.json()) as { tehsil: string; uc_name: string }[]
+        setTehsilOptions(Array.from(new Set(ucs.map(u => u.tehsil).filter(Boolean))).sort())
+        setUcOptions(Array.from(new Set(ucs.map(u => u.uc_name).filter(Boolean))).sort())
+      }
+    }
+
+    loadOptions()
+  }, [editing])
 
   const getStatusColor = (dateStr: string) => {
     if (!dateStr) return 'rgba(255,255,255,0.3)'
@@ -290,9 +333,9 @@ export default function Profile({ employeeId, onBack }: Props) {
               Service Details
             </h3>
             <div className="profile-grid edit-grid">
-              <ProfileInput label="Designation" value={formData.designation ?? ''} onChange={(v) => updateField('designation', v)} />
-              <ProfileInput label="Department" value={formData.parent_department ?? ''} onChange={(v) => updateField('parent_department', v)} />
-              <ProfileInput label="Cadre" value={formData.cadre ?? ''} onChange={(v) => updateField('cadre', v)} />
+              <ProfileSelect label="Designation" value={formData.designation ?? ''} onChange={(v) => updateField('designation', v)} options={designationOptions} />
+              <ProfileSelect label="Department" value={formData.parent_department ?? ''} onChange={(v) => updateField('parent_department', v)} options={departmentOptions} />
+              <ProfileSelect label="Cadre" value={formData.cadre ?? ''} onChange={(v) => updateField('cadre', v)} options={cadreOptions} />
               <ProfileInput label="Employment Status" value={formData.employment_status ?? ''} onChange={(v) => updateField('employment_status', v)} />
               <ProfileInput label="Service Status" value={formData.service_status ?? ''} onChange={(v) => updateField('service_status', v)} />
               <ProfileInput label="Date of Appointment" value={formData.date_of_appointment ?? ''} onChange={(v) => updateField('date_of_appointment', v)} type="date" />
@@ -309,12 +352,12 @@ export default function Profile({ employeeId, onBack }: Props) {
               </svg>
               Posting Information
             </h3>
-            <div className="profile-grid edit-grid">
-              <ProfileInput label="Posting Status" value={formData.posting_status ?? ''} onChange={(v) => updateField('posting_status', v)} />
-              <ProfileInput label="Posting Type" value={formData.posting_type ?? ''} onChange={(v) => updateField('posting_type', v)} />
-              <ProfileInput label="Tehsil" value={formData.tehsil ?? ''} onChange={(v) => updateField('tehsil', v)} />
-              <ProfileInput label="UC" value={formData.uc ?? ''} onChange={(v) => updateField('uc', v)} />
-            </div>
+             <div className="profile-grid edit-grid">
+               <ProfileInput label="Posting Status" value={formData.posting_status ?? ''} onChange={(v) => updateField('posting_status', v)} />
+               <ProfileInput label="Posting Type" value={formData.posting_type ?? ''} onChange={(v) => updateField('posting_type', v)} />
+               <ProfileSelect label="Tehsil" value={formData.tehsil ?? ''} onChange={(v) => updateField('tehsil', v)} options={tehsilOptions} />
+               <ProfileSelect label="UC" value={formData.uc ?? ''} onChange={(v) => updateField('uc', v)} options={ucOptions} />
+             </div>
           </div>
         </div>
       ) : (
@@ -441,6 +484,36 @@ function ProfileInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
+    </div>
+  )
+}
+
+function ProfileSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  options: string[]
+}) {
+  return (
+    <div className="profile-field">
+      <span className="profile-field-label">{label}</span>
+      <select
+        className="profile-field-select"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">-- Select --</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }

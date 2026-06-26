@@ -363,6 +363,32 @@
   color-scheme: dark;
 }
 
+.profile-field-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(12px);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.profile-field-select:focus {
+  border-color: rgba(167, 139, 250, 0.5);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+}
+
+.profile-field-select option {
+  background: #1a1a2e;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .profile-section {
   margin-bottom: 20px;
   animation: slideUp 0.3s ease-out backwards;
