@@ -317,7 +317,6 @@ export default function Dashboard() {
                   setSelectedDept(e.target.value)
                   resetLowerLevels(2)
                 }}
-                disabled={!selectedTehsil && availableDepts.length === departments.length}
               >
                 <option value="">All Departments</option>
                 {availableDepts.map((d) => (
