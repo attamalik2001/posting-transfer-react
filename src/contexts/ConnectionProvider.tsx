@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { ConnectionContext } from './connection'
 import type { ConnectionState } from './connection'
-import { supabaseUrl, supabaseAnonKey, isSupabaseConfigured } from '../lib/supabase'
+import { supabaseUrl, supabaseAnonKey, isSupabaseConfigured, supabaseFetch } from '../lib/supabase'
 
 type Status = ConnectionState['supabase']
 
@@ -11,7 +11,7 @@ async function checkSupabaseHealth(): Promise<Status> {
   }
 
   try {
-    const res = await fetch(`${supabaseUrl}/auth/v1/health`, {
+    const res = await supabaseFetch(`${supabaseUrl}/auth/v1/health`, {
       headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
     })
     if (res.ok) return 'online'

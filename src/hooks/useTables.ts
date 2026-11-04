@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabaseUrl, serviceRoleKey, isSupabaseConfigured } from '../lib/supabase'
+import { supabaseUrl, serviceRoleKey, isSupabaseConfigured, supabaseFetch } from '../lib/supabase'
 
 interface TableInfo {
   table_name: string
@@ -10,7 +10,7 @@ async function fetchTables(): Promise<TableInfo[]> {
     throw new Error('Supabase not configured')
   }
 
-  const res = await fetch(
+  const res = await supabaseFetch(
     `${supabaseUrl}/rest/v1/`,
     {
       headers: {

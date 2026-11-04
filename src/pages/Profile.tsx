@@ -3,6 +3,7 @@ import {
   supabaseUrl,
   supabaseAnonKey,
   isSupabaseConfigured,
+  supabaseFetch,
 } from '../lib/supabase'
 import './Profile.css'
 
@@ -27,6 +28,16 @@ interface Employee {
   date_of_superannuation: string
   tehsil: string
   uc: string
+}
+
+function isEmployeePosted(emp: Pick<Employee, 'posting_status' | 'uc'>): boolean {
+  const status = (emp.posting_status || '').trim().toLowerCase()
+  if (status === 'not posted' || status === 'unposted') return false
+  const uc = (emp.uc || '').trim()
+  if (!uc || uc.toLowerCase() === 'unassigned' || uc.toLowerCase() === '(unassigned)') {
+    return false
+  }
+  return true
 }
 
 interface Props {
@@ -61,7 +72,7 @@ export default function Profile({ employeeId, onBack }: Props) {
       }
 
       try {
-        const res = await fetch(
+        const res = await supabaseFetch(
           `${supabaseUrl}/rest/v1/employee?id=eq.${employeeId}&select=*`,
           {
             headers: {
@@ -94,7 +105,12 @@ export default function Profile({ employeeId, onBack }: Props) {
 
   const handleEdit = () => {
     if (!employee) return
-    setFormData({ ...employee })
+    const posted = isEmployeePosted(employee)
+    setFormData({
+      ...employee,
+      posting_status: posted ? 'Posted' : 'Not Posted',
+      uc: posted ? employee.uc : '',
+    })
     setEditing(true)
   }
 
@@ -110,7 +126,19 @@ export default function Profile({ employeeId, onBack }: Props) {
     setError(null)
 
     try {
-      const res = await fetch(
+      const normalizedStatus = (formData.posting_status || '').trim().toLowerCase()
+      const isNotPosted =
+        normalizedStatus === 'not posted' ||
+        normalizedStatus === 'unposted' ||
+        !(formData.uc || '').trim()
+
+      const payload: Partial<Employee> = {
+        ...formData,
+        posting_status: isNotPosted ? 'Not Posted' : 'Posted',
+        uc: isNotPosted ? '' : (formData.uc || '').trim(),
+      }
+
+      const res = await supabaseFetch(
         `${supabaseUrl}/rest/v1/employee?id=eq.${employeeId}`,
         {
           method: 'PATCH',
@@ -120,7 +148,7 @@ export default function Profile({ employeeId, onBack }: Props) {
             'Content-Type': 'application/json',
             Prefer: 'return=minimal',
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         }
       )
 
@@ -129,7 +157,7 @@ export default function Profile({ employeeId, onBack }: Props) {
         throw new Error(`HTTP ${res.status}: ${text}`)
       }
 
-      setEmployee({ ...employee, ...formData } as Employee)
+      setEmployee({ ...employee, ...payload } as Employee)
       setEditing(false)
       setFormData({})
     } catch (err) {
@@ -140,7 +168,19 @@ export default function Profile({ employeeId, onBack }: Props) {
   }
 
   const updateField = <K extends keyof Employee>(key: K, value: Employee[K]) => {
-    setFormData((prev) => ({ ...prev, [key]: value }))
+    setFormData((prev) => {
+      const next = { ...prev, [key]: value }
+      if (key === 'posting_status') {
+        const norm = String(value || '').trim().toLowerCase()
+        if (norm === 'not posted' || norm === 'unposted') {
+          next.uc = ''
+        }
+      }
+      if (key === 'uc' && String(value || '').trim()) {
+        next.posting_status = 'Posted'
+      }
+      return next
+    })
   }
 
   useEffect(() => {
@@ -148,14 +188,14 @@ export default function Profile({ employeeId, onBack }: Props) {
 
     const loadOptions = async () => {
       const [empRes, ucRes] = await Promise.all([
-        fetch(`${supabaseUrl}/rest/v1/employee?select=designation,parent_department,cadre`, {
+        supabaseFetch(`${supabaseUrl}/rest/v1/employee?select=designation,parent_department,cadre`, {
           headers: {
             apikey: supabaseAnonKey,
             Authorization: `Bearer ${supabaseAnonKey}`,
             Accept: 'application/json',
           },
         }),
-        fetch(`${supabaseUrl}/rest/v1/uc?select=tehsil,uc_name`, {
+        supabaseFetch(`${supabaseUrl}/rest/v1/uc?select=tehsil,uc_name`, {
           headers: {
             apikey: supabaseAnonKey,
             Authorization: `Bearer ${supabaseAnonKey}`,
@@ -182,13 +222,13 @@ export default function Profile({ employeeId, onBack }: Props) {
   }, [editing])
 
   const getStatusColor = (dateStr: string) => {
-    if (!dateStr) return 'rgba(255,255,255,0.3)'
+    if (!dateStr) return 'var(--text-muted)'
     const d = new Date(dateStr)
     const yr = d.getFullYear()
     const now = new Date()
-    if (yr < now.getFullYear()) return '#ef4444'
-    if (yr === now.getFullYear()) return '#f97316'
-    return '#22c55e'
+    if (yr < now.getFullYear()) return '#dc2626'
+    if (yr === now.getFullYear()) return '#d97706'
+    return '#16a34a'
   }
 
   const getStatusGlow = (dateStr: string) => {
@@ -196,9 +236,9 @@ export default function Profile({ employeeId, onBack }: Props) {
     const d = new Date(dateStr)
     const yr = d.getFullYear()
     const now = new Date()
-    if (yr < now.getFullYear()) return 'rgba(239,68,68,0.4)'
-    if (yr === now.getFullYear()) return 'rgba(249,115,22,0.4)'
-    return 'rgba(34,197,94,0.4)'
+    if (yr < now.getFullYear()) return 'rgba(220,38,38,0.25)'
+    if (yr === now.getFullYear()) return 'rgba(217,119,6,0.25)'
+    return 'rgba(22,163,74,0.25)'
   }
 
   if (loading) {
@@ -239,6 +279,11 @@ export default function Profile({ employeeId, onBack }: Props) {
     .join('')
     .toUpperCase()
     .slice(0, 2)
+
+  const isPosted = isEmployeePosted(employee)
+  const editIsNotPosted =
+    (formData.posting_status || '').trim().toLowerCase() === 'not posted' ||
+    (formData.posting_status || '').trim().toLowerCase() === 'unposted'
 
   return (
     <div className="glass profile-container">
@@ -354,19 +399,26 @@ export default function Profile({ employeeId, onBack }: Props) {
               </svg>
               Posting Information
             </h3>
-             <div className="profile-grid edit-grid">
-               <ProfileInput label="Posting Status" value={formData.posting_status ?? ''} onChange={(v) => updateField('posting_status', v)} />
-               <ProfileInput label="Posting Type" value={formData.posting_type ?? ''} onChange={(v) => updateField('posting_type', v)} />
-               <ProfileSelect label="Tehsil" value={formData.tehsil ?? ''} onChange={(v) => updateField('tehsil', v)} options={tehsilOptions} />
-               <ProfileSelect label="UC" value={formData.uc ?? ''} onChange={(v) => updateField('uc', v)} options={ucOptions} />
-             </div>
+            <div className="profile-grid edit-grid">
+              <ProfileSelect
+                label="Posting Status"
+                value={formData.posting_status ?? 'Posted'}
+                onChange={(v) => updateField('posting_status', v)}
+                options={['Posted', 'Not Posted']}
+              />
+              <ProfileInput label="Posting Type" value={formData.posting_type ?? ''} onChange={(v) => updateField('posting_type', v)} />
+              <ProfileSelect label="Tehsil" value={formData.tehsil ?? ''} onChange={(v) => updateField('tehsil', v)} options={tehsilOptions} />
+              {!editIsNotPosted && (
+                <ProfileSelect label="UC" value={formData.uc ?? ''} onChange={(v) => updateField('uc', v)} options={ucOptions} />
+              )}
+            </div>
           </div>
         </div>
       ) : (
         <>
           <div className="profile-stats">
             <div className="stat-card">
-              <span className="stat-label">Status</span>
+              <span className="stat-label">Service Status</span>
               <span className="stat-value status-badge" style={{
                 color: getStatusColor(employee.date_of_superannuation),
                 background: `${getStatusColor(employee.date_of_superannuation)}15`,
@@ -384,13 +436,28 @@ export default function Profile({ employeeId, onBack }: Props) {
               </span>
             </div>
             <div className="stat-card">
-              <span className="stat-label">UC / Tehsil</span>
-              <span className="stat-value">{employee.uc}</span>
-              <span className="stat-sub">{employee.tehsil}</span>
+              <span className="stat-label">
+                {isPosted ? 'UC / Tehsil' : 'Posting Status'}
+              </span>
+              {isPosted ? (
+                <>
+                  <span className="stat-value">{employee.uc}</span>
+                  <span className="stat-sub">{employee.tehsil || '—'}</span>
+                </>
+              ) : (
+                <>
+                  <span className="stat-value" style={{ color: 'var(--status-warning)' }}>
+                    Not Posted
+                  </span>
+                  <span className="stat-sub">
+                    {employee.tehsil ? `Tehsil: ${employee.tehsil}` : 'No UC Assigned'}
+                  </span>
+                </>
+              )}
             </div>
             <div className="stat-card">
               <span className="stat-label">CNIC</span>
-              <span className="stat-value">{employee.cnic}</span>
+              <span className="stat-value tabular-nums">{employee.cnic}</span>
             </div>
           </div>
 
@@ -445,10 +512,13 @@ export default function Profile({ employeeId, onBack }: Props) {
               Posting Information
             </h3>
             <div className="profile-grid">
-              <ProfileField label="Posting Status" value={employee.posting_status} />
-              <ProfileField label="Posting Type" value={employee.posting_type} />
-              <ProfileField label="Tehsil" value={employee.tehsil} />
-              <ProfileField label="UC" value={employee.uc} />
+              <ProfileField
+                label="Posting Status"
+                value={isPosted ? 'Posted' : 'Not Posted'}
+              />
+              <ProfileField label="Posting Type" value={employee.posting_type || '—'} />
+              <ProfileField label="Tehsil" value={employee.tehsil || '—'} />
+              {isPosted && <ProfileField label="UC" value={employee.uc} />}
             </div>
           </div>
         </>
