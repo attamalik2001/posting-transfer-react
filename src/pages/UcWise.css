@@ -245,17 +245,46 @@
 
 .uc-emp-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 6px;
   flex-shrink: 0;
+}
+
+.btn-mark-unposted {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--status-warning-border);
+  background: var(--status-warning-bg);
+  color: var(--status-warning);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-mark-unposted:hover:not(:disabled) {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.btn-mark-unposted:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .icon-edit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border-radius: 8px;
   border: 1px solid var(--accent-border);

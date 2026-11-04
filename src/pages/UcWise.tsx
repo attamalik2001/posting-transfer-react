@@ -359,6 +359,48 @@ export default function UcWise({ onViewProfile }: Props) {
     }
   }
 
+  const handleMarkNotPosted = async (emp: Employee) => {
+    setSavingId(emp.id)
+    try {
+      const empPatchRes = await supabaseFetch(
+        `${supabaseUrl}/rest/v1/employee?id=eq.${emp.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${supabaseAnonKey}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal',
+          },
+          body: JSON.stringify({
+            posting_status: 'Not Posted',
+            uc: '',
+          }),
+        }
+      )
+
+      if (!empPatchRes.ok) {
+        const text = await empPatchRes.text()
+        throw new Error(`Failed to mark employee as Not Posted: ${text}`)
+      }
+
+      setEmployees((prev) =>
+        prev.map((e) =>
+          e.id === emp.id
+            ? { ...e, posting_status: 'Not Posted', uc: '' }
+            : e
+        )
+      )
+    } catch (err) {
+      console.error('Failed to mark employee as Not Posted:', err)
+      setError(
+        err instanceof Error ? err.message : 'Failed to update posting status'
+      )
+    } finally {
+      setSavingId(null)
+    }
+  }
+
   if (loading) {
     return (
       <div className="glass data-container">
@@ -561,11 +603,24 @@ export default function UcWise({ onViewProfile }: Props) {
                           <div className="uc-emp-actions">
                             <button
                               type="button"
+                              className="btn-mark-unposted"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleMarkNotPosted(emp)
+                              }}
+                              disabled={isSaving}
+                              title="Mark employee as Not Posted"
+                            >
+                              {isSaving ? 'Updating...' : 'Mark Not Posted'}
+                            </button>
+                            <button
+                              type="button"
                               className="icon-edit"
                               onClick={(e) => {
                                 e.stopPropagation()
                                 openEdit(emp)
                               }}
+                              disabled={isSaving}
                               title="Transfer Posting"
                             >
                               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
