@@ -25,11 +25,23 @@ export const serviceRoleKey =
 
 export const isSupabaseConfigured = isRealSupabaseConfigured
 
+function shouldUseServerProxy(): boolean {
+  if (typeof window === 'undefined') return false
+  const host = window.location.hostname
+  // Use Vite's /supabase-api proxy in AI Studio (*.run.app) and local dev;
+  // on static hosts like GitHub Pages (*.github.io), connect directly to Supabase.
+  return (
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host.endsWith('.run.app')
+  )
+}
+
 export async function supabaseFetch(
   input: string,
   init?: RequestInit
 ): Promise<Response> {
-  if (input.startsWith(supabaseUrl)) {
+  if (input.startsWith(supabaseUrl) && shouldUseServerProxy()) {
     const relativePath = input.slice(supabaseUrl.length)
     const rawHeaders = new Headers(init?.headers)
     const actualMethod = (init?.method || 'GET').toUpperCase()
@@ -48,8 +60,6 @@ export async function supabaseFetch(
       extraParams.length > 0 ? `${sep}${extraParams.join('&')}` : ''
     }`
 
-    // Use only simple GET or POST requests with clean headers so Cloud Run's
-    // ingress proxy and _aistudio-iframe.js never block PATCH/DELETE or JWT headers.
     const transportMethod =
       actualMethod === 'GET' || actualMethod === 'HEAD' ? actualMethod : 'POST'
 

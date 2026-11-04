@@ -15,7 +15,7 @@
     "mobile": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "prebuild": "expo prebuild"
+    "expo:prebuild": "expo prebuild"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

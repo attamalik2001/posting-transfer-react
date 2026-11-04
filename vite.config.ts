@@ -102,7 +102,7 @@ function supabaseProxyPlugin(): Plugin {
 }
 
 export default defineConfig({
-  base: '/',
+  base: process.env.GITHUB_ACTIONS ? '/posting-transfer-react/' : '/',
   plugins: [
     supabaseProxyPlugin(),
     react(),
