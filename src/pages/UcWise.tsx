@@ -391,6 +391,7 @@ export default function UcWise({ onViewProfile }: Props) {
             : e
         )
       )
+      setEditingId(null)
     } catch (err) {
       console.error('Failed to mark employee as Not Posted:', err)
       setError(
@@ -603,18 +604,6 @@ export default function UcWise({ onViewProfile }: Props) {
                           <div className="uc-emp-actions">
                             <button
                               type="button"
-                              className="btn-mark-unposted"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleMarkNotPosted(emp)
-                              }}
-                              disabled={isSaving}
-                              title="Mark employee as Not Posted"
-                            >
-                              {isSaving ? 'Updating...' : 'Mark Not Posted'}
-                            </button>
-                            <button
-                              type="button"
                               className="icon-edit"
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -680,6 +669,14 @@ export default function UcWise({ onViewProfile }: Props) {
                               }
                             >
                               {isSaving ? 'Saving...' : 'Save Posting'}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-unpost"
+                              onClick={() => handleMarkNotPosted(emp)}
+                              disabled={isSaving}
+                            >
+                              {isSaving ? 'Updating...' : 'Mark Not Posted'}
                             </button>
                             <button
                               type="button"

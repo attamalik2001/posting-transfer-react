@@ -464,66 +464,6 @@ export default function Data({
         </div>
       </div>
 
-      {/* Total Employees, Total Posted & Total Not Posted Summary Cards */}
-      <div className="emp-summary-cards">
-        <button
-          type="button"
-          className={`emp-summary-card ${postingFilter === 'all' ? 'active' : ''}`}
-          onClick={() => setPostingFilter('all')}
-        >
-          <div className="emp-summary-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </div>
-          <div className="emp-summary-body">
-            <span className="emp-summary-label">Total Employees</span>
-            <span className="emp-summary-value tabular-nums">{employees.length}</span>
-            <span className="emp-summary-meta">All department staff</span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          className={`emp-summary-card card-posted ${postingFilter === 'posted' ? 'active' : ''}`}
-          onClick={() => setPostingFilter('posted')}
-        >
-          <div className="emp-summary-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </div>
-          <div className="emp-summary-body">
-            <span className="emp-summary-label">Total Posted</span>
-            <span className="emp-summary-value tabular-nums">{postedCount}</span>
-            <span className="emp-summary-meta">Assigned to Union Councils</span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          className={`emp-summary-card card-not-posted ${postingFilter === 'not_posted' ? 'active' : ''}`}
-          onClick={() => setPostingFilter('not_posted')}
-        >
-          <div className="emp-summary-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-          </div>
-          <div className="emp-summary-body">
-            <span className="emp-summary-label">Total Not Posted</span>
-            <span className="emp-summary-value tabular-nums">{notPostedCount}</span>
-            <span className="emp-summary-meta">Unassigned / awaiting posting</span>
-          </div>
-        </button>
-      </div>
-
       {/* Posted & Not Posted Filter Pills */}
       <div className="posting-pills-bar" role="tablist" aria-label="Filter employees by posting status">
         <button
