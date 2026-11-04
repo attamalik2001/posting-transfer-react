@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/posting-transfer-react/',
+  base: '/',
   plugins: [
     react(),
     VitePWA({
@@ -17,8 +17,8 @@ export default defineConfig({
         background_color: '#09090b',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/posting-transfer-react/',
-        start_url: '/posting-transfer-react/',
+        scope: '/',
+        start_url: '/',
         icons: [
           {
             src: 'icons/icon-192.png',
@@ -51,8 +51,9 @@ export default defineConfig({
     }),
   ],
   server: {
-    port: 5173,
-    host: true,
+    port: 3000,
+    host: '0.0.0.0',
+    allowedHosts: true,
   },
   define: {
     global: 'globalThis',

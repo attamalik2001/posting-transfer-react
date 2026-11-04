@@ -333,10 +333,10 @@ export default function Data({ onViewProfile, retiringFilter }: Props) {
           <p className="error-message">{error}</p>
           <button
             className="btn btn-edit"
-            onClick={() => setPage('settings')}
+            onClick={() => window.location.reload()}
             style={{ marginTop: 12 }}
           >
-            Go to Settings
+            Retry
           </button>
         </div>
       </div>
